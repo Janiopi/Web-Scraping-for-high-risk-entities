@@ -50,8 +50,8 @@ class Ofac {
       });
 
       await browser.close();
-      console.log('Results:', results);
-      console.log('Count:', count);
+      // console.log('Results:', results);
+      // console.log('Count:', count);
 
       return {
         source: 'OFAC Sanctions List',
@@ -67,6 +67,8 @@ class Ofac {
 
 export { Ofac };
 
+/*
 // Test
 const offShoreLeak = new Ofac();
 offShoreLeak.search('Test ');
+*/

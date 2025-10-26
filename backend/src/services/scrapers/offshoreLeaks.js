@@ -59,8 +59,8 @@ class OffshoreLeaksScraper {
       });
 
       await browser.close();
-      console.log(results);
-      console.log(count);
+      // console.log(results);
+      // console.log(count);
       return {
         source: 'Offshore Leaks Database',
         count,
@@ -75,6 +75,8 @@ class OffshoreLeaksScraper {
 
 export { OffshoreLeaksScraper };
 
+/*
 // Test
 const offShoreLeak = new OffshoreLeaksScraper();
 offShoreLeak.search('Test ');
+*/

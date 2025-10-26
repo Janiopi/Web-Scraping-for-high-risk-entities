@@ -50,8 +50,8 @@ class TheWorldBank {
       );
 
       await browser.close();
-      console.log(results);
-      console.log(count);
+      // console.log(results);
+      // console.log(count);
 
       return {
         source: 'The World Bank',
@@ -67,6 +67,8 @@ class TheWorldBank {
 
 export { TheWorldBank };
 
+/*
 // Test
 const offShoreLeak = new TheWorldBank();
 offShoreLeak.search('aa');
+*/
