@@ -4,7 +4,7 @@ class Ofac {
   async search(entityName) {
     console.log(` Searching ${entityName} in Ofac sanctions list`);
     try {
-      const browser = await puppeteer.launch({ headless: false, slowMo: 400 }); // Puppeteer will simulate a client visiting the site
+      const browser = await puppeteer.launch({ headless: true, slowMo: 400 }); // Puppeteer will simulate a client visiting the site
       const page = await browser.newPage();
 
       //Navigate to the page and search
@@ -50,8 +50,6 @@ class Ofac {
       });
 
       await browser.close();
-      // console.log('Results:', results);
-      // console.log('Count:', count);
 
       return {
         source: 'OFAC Sanctions List',
@@ -66,9 +64,3 @@ class Ofac {
 }
 
 export { Ofac };
-
-/*
-// Test
-const offShoreLeak = new Ofac();
-offShoreLeak.search('Test ');
-*/

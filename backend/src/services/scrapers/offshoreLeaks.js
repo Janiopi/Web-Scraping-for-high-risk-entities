@@ -4,7 +4,8 @@ class OffshoreLeaksScraper {
   async search(entityName) {
     console.log(` Searching ${entityName} in OffShore Leaks DataBase`);
     try {
-      const browser = await puppeteer.launch({ headless: false, slowMo: 400 }); // Puppeteer will simulate a client visiting the site
+      // Puppeteer will simulate a client visiting the site
+      const browser = await puppeteer.launch({ headless: false, slowMo: 300 }); //In case of offShoreLeaks, it detects bots
       const page = await browser.newPage();
 
       //Navigate to the page and search
@@ -49,18 +50,17 @@ class OffshoreLeaksScraper {
           const cells = row.querySelectorAll('td');
           return {
             entity: cells[0]?.querySelector('a')?.textContent?.trim() || '',
-            entityLink: cells[0]?.querySelector('a')?.href || '',
+            // entityLink: cells[0]?.querySelector('a')?.href || '',
             jurisdiction: cells[1]?.textContent?.trim() || '',
-            country: cells[2]?.textContent?.trim() || '',
-            source: cells[3]?.querySelector('a')?.textContent?.trim() || '',
-            sourceLink: cells[3]?.querySelector('a')?.href || '',
+            linkedTo: cells[2]?.textContent?.trim() || '',
+            dataFrom: cells[3]?.querySelector('a')?.textContent?.trim() || '',
+            // sourceLink: cells[3]?.querySelector('a')?.href || '',
           };
         });
       });
 
       await browser.close();
-      // console.log(results);
-      // console.log(count);
+
       return {
         source: 'Offshore Leaks Database',
         count,
@@ -74,9 +74,3 @@ class OffshoreLeaksScraper {
 }
 
 export { OffshoreLeaksScraper };
-
-/*
-// Test
-const offShoreLeak = new OffshoreLeaksScraper();
-offShoreLeak.search('Test ');
-*/

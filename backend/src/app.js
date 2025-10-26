@@ -1,8 +1,19 @@
 import express from 'express';
+import cors from 'cors';
 import apiRoutes from './routes/api.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// CORS Configuration - More permissive
+app.use(
+  cors({
+    origin: true, // Allow all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['*'],
+    credentials: true,
+  })
+);
 
 // Middleware
 app.use(express.json());

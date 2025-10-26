@@ -4,7 +4,7 @@ class TheWorldBank {
   async search(entityName) {
     console.log(` Searching ${entityName} in The World Bank`);
     try {
-      const browser = await puppeteer.launch({ headless: false, slowMo: 400 }); // Puppeteer will simulate a client visiting the site
+      const browser = await puppeteer.launch({ headless: true, slowMo: 400 }); // Puppeteer will simulate a client visiting the site
       const page = await browser.newPage();
 
       //Navigate to the page and search
@@ -50,8 +50,6 @@ class TheWorldBank {
       );
 
       await browser.close();
-      // console.log(results);
-      // console.log(count);
 
       return {
         source: 'The World Bank',
@@ -66,9 +64,3 @@ class TheWorldBank {
 }
 
 export { TheWorldBank };
-
-/*
-// Test
-const offShoreLeak = new TheWorldBank();
-offShoreLeak.search('aa');
-*/
