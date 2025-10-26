@@ -1,0 +1,58 @@
+import axios from 'axios';
+
+class ApiService {
+  constructor() {
+    this.baseURL = 'http://localhost:3000/api'; // Backend endpoint
+    this.api = axios.create({
+      baseURL: this.baseURL,
+      timeout: 120000, // 2 minutes timeout for scraping operations
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async searchEntity(entityName) {
+    try {
+      const response = await this.api.get('/search', {
+        params: { entityName },
+      });
+      console.log('API Response:', response.data);
+
+      // Backend returns { success: true, data: { results: [...], message:  } }
+      // We need to return { results: [...] } for the frontend
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', error);
+      if (error.response) {
+        throw new Error(error.response.data.message || 'Search failed');
+      } else if (error.request) {
+        throw new Error(
+          'Unable to connect to the server. Please check if the backend is running.'
+        );
+      } else {
+        throw new Error('An unexpected error occurred');
+      }
+    }
+  }
+
+  async checkHealth() {
+    try {
+      // Use axios directly for health check
+      const response = await axios.get('http://localhost:3000/health', {
+        timeout: 5000,
+      });
+      console.log('Health check response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Health check error:', error);
+      throw new Error('Backend server is not responding');
+    }
+  }
+}
+
+export default new ApiService();
