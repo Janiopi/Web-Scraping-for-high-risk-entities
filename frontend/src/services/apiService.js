@@ -1,4 +1,5 @@
 import axios from 'axios';
+import authService from './authService.js';
 
 class ApiService {
   constructor() {
@@ -10,6 +11,33 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     });
+
+    // Interceptor to add auth token automatically
+    this.api.interceptors.request.use(
+      (config) => {
+        const token = authService.getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          console.log(' Adding auth token to request');
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Interceptor for managing auth errors
+    this.api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          console.log('Authentication failed, logging out');
+          authService.logout();
+          // Opcionalmente redirigir al login
+          window.dispatchEvent(new CustomEvent('auth-logout'));
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
   async searchEntity(entityName) {
