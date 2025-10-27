@@ -1,14 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>High-Risk Entity Search</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 min-h-screen">
-    <div id="app"></div>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Scraping for High-Risk Entities</title>
+    <meta
+      name="description"
+      content="Sistema de búsqueda de entidades de alto riesgo con autenticación"
+    />
+
+    <!-- Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>"
+    />
+
+    <style>
+      /* Custom loading animation */
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      .pulse-animation {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      /* Smooth transitions */
+      * {
+        transition: all 0.2s ease-in-out;
+      }
+
+      /* Hide scrollbar but keep functionality */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Main App Container -->
+    <div id="app">
+      <!-- Initial loading state -->
+      <div class="min-h-screen flex items-center justify-center">
+        <div class="text-center">
+          <i
+            class="fas fa-shield-alt text-4xl text-blue-600 mb-4 pulse-animation"
+          ></i>
+          <h2 class="text-xl font-semibold text-gray-900 mb-2">
+            Cargando aplicación...
+          </h2>
+          <p class="text-gray-600">Inicializando sistema de autenticación</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main App Script -->
     <script type="module" src="/src/main.js"></script>
-</body>
+  </body>
 </html>

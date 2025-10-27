@@ -1,6 +1,6 @@
 import apiService from '../services/apiService.js';
 
-export class SearchComponent {
+class SearchComponent {
   constructor(container) {
     this.container = container;
     this.isLoading = false;
@@ -300,3 +300,5 @@ export class SearchComponent {
     }
   }
 }
+
+export default SearchComponent;
