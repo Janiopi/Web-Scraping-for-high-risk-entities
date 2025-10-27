@@ -5,6 +5,7 @@ class SearchComponent {
     this.container = container;
     this.isLoading = false;
     this.results = null;
+    this.collapsedSources = new Set(); // Track which sources are collapsed
     this.init();
   }
 
@@ -81,6 +82,86 @@ class SearchComponent {
     form.addEventListener('submit', (e) => this.handleSearch(e)); //Will detect when submit
   }
 
+  toggleSourceCollapse(source) {
+    if (this.collapsedSources.has(source)) {
+      this.collapsedSources.delete(source);
+    } else {
+      this.collapsedSources.add(source);
+    }
+
+    const resultContainer = document.getElementById(`source-results-${source}`);
+    const toggleIcon = document.getElementById(`toggle-icon-${source}`);
+
+    if (resultContainer && toggleIcon) {
+      if (this.collapsedSources.has(source)) {
+        resultContainer.classList.add('hidden');
+        toggleIcon.classList.remove('fa-chevron-down');
+        toggleIcon.classList.add('fa-chevron-right');
+      } else {
+        resultContainer.classList.remove('hidden');
+        toggleIcon.classList.remove('fa-chevron-right');
+        toggleIcon.classList.add('fa-chevron-down');
+      }
+    }
+  }
+
+  downloadResults() {
+    if (!this.results) {
+      this.showStatus('No results to download', 'error');
+      return;
+    }
+
+    try {
+      // Prepare the data for download
+      const downloadData = {
+        searchInfo: {
+          timestamp: new Date().toISOString(),
+          query: document.getElementById('entity-name').value,
+          totalResults: this.results.results.reduce(
+            (total, source) =>
+              total + (source.data ? source.data.results.length : 0),
+            0
+          ),
+        },
+        results: this.results.results.map((sourceResult) => ({
+          source: sourceResult.source,
+          sourceName: this.getSourceDisplayName(sourceResult.source),
+          status: sourceResult.status,
+          resultCount: sourceResult.data ? sourceResult.data.results.length : 0,
+          data: sourceResult.data ? sourceResult.data.results : [],
+          error: sourceResult.status !== 'success' ? 'Search failed' : null,
+        })),
+      };
+
+      // Create and download the file
+      const dataStr = JSON.stringify(downloadData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Generate filename with timestamp
+      const timestamp = new Date()
+        .toISOString()
+        .replace(/[:.]/g, '-')
+        .slice(0, -5);
+      const query = document
+        .getElementById('entity-name')
+        .value.replace(/[^a-zA-Z0-9]/g, '_');
+      link.download = `search-results_${query}_${timestamp}.json`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      this.showStatus('Results downloaded successfully', 'success');
+    } catch (error) {
+      console.error('Download error:', error);
+      this.showStatus('Failed to download results', 'error');
+    }
+  }
   async handleSearch(e) {
     e.preventDefault();
 
@@ -125,11 +206,16 @@ class SearchComponent {
 
   clearResults() {
     document.getElementById('results-container').innerHTML = '';
+    // Reset collapsed sources when clearing results
+    this.collapsedSources.clear();
   }
 
   displayResults(results) {
     const container = document.getElementById('results-container');
     console.log('Displaying results:', results);
+
+    // Store results for download functionality
+    this.results = results;
 
     // Show raw data for debugging
     container.innerHTML = `
@@ -177,12 +263,19 @@ class SearchComponent {
           TheWorldBank: 'fas fa-university text-blue-600',
         };
 
+        const isCollapsed = this.collapsedSources.has(sourceResult.source);
+
         return `
         <div class="mb-6 ${
           sourceColors[sourceResult.source] || 'bg-gray-50 border-gray-200'
         } border rounded-lg overflow-hidden">
-          <div class="p-4 border-b bg-white">
+          <div class="p-4 border-b bg-white cursor-pointer hover:bg-gray-50 transition-colors" onclick="searchComponent.toggleSourceCollapse('${
+            sourceResult.source
+          }')">
             <h3 class="text-lg font-semibold flex items-center gap-2">
+              <i id="toggle-icon-${sourceResult.source}" class="fas ${
+          isCollapsed ? 'fa-chevron-right' : 'fa-chevron-down'
+        } text-gray-500 transition-transform"></i>
               <i class="${
                 sourceIcons[sourceResult.source] || 'fas fa-database'
               }"></i>
@@ -200,19 +293,28 @@ class SearchComponent {
             }
           </div>
           
-          ${
-            sourceResult.results.length > 0
-              ? `
-            <div class="p-4 space-y-4">
-              ${sourceResult.results
-                .map((result) =>
-                  this.renderResultItem(result, sourceResult.source)
-                )
-                .join('')}
-            </div>
-          `
-              : ''
-          }
+          <div id="source-results-${sourceResult.source}" class="${
+          isCollapsed ? 'hidden' : ''
+        }">
+            ${
+              sourceResult.results.length > 0
+                ? `
+              <div class="p-4 space-y-4">
+                ${sourceResult.results
+                  .map((result) =>
+                    this.renderResultItem(result, sourceResult.source)
+                  )
+                  .join('')}
+              </div>
+            `
+                : `
+              <div class="p-4 text-center text-gray-500">
+                <i class="fas fa-info-circle mb-2"></i>
+                <p>No results found for this source</p>
+              </div>
+            `
+            }
+          </div>
         </div>
       `;
       })
@@ -221,9 +323,19 @@ class SearchComponent {
     container.innerHTML = `
       <div class="space-y-6">
         <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div class="flex items-center gap-2">
-            <i class="fas fa-check-circle text-green-600"></i>
-            <span class="font-semibold text-green-800">Search Summary</span>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-check-circle text-green-600"></i>
+              <span class="font-semibold text-green-800">Search Summary</span>
+            </div>
+            <button 
+              onclick="searchComponent.downloadResults()"
+              class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center gap-2 text-sm transition-colors"
+              title="Download results as JSON"
+            >
+              <i class="fas fa-download"></i>
+              Download JSON
+            </button>
           </div>
           <p class="text-green-700 mt-1">
             Found ${transformedResults.reduce(
@@ -238,6 +350,9 @@ class SearchComponent {
         ${resultsHtml}
       </div>
     `;
+
+    // Make this component instance globally accessible for onclick handlers
+    window.searchComponent = this;
   }
 
   renderResultItem(result, source) {
