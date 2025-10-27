@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import apiRoutes from './routes/api.js';
+import authRoutes from './routes/auth.js';
+import databaseService from './services/databaseService.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api', apiRoutes);
+app.use('/auth', authRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -53,12 +56,44 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(` Server running on http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(
-    `Search endpoint: http://localhost:${PORT}/api/search?entityName=test`
-  );
+async function startServer() {
+  try {
+    // Connect to db
+    await databaseService.connect();
+
+    // Init server
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Health check: http://localhost:${PORT}/health`);
+      console.log(
+        ` Search endpoint: http://localhost:${PORT}/api/search?entityName=test`
+      );
+      console.log(`Auth endpoints: http://localhost:${PORT}/auth/login`);
+      console.log(
+        `Database: ${
+          databaseService.isHealthy() ? 'Connected' : 'Disconnected'
+        }`
+      );
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// graceful close
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  await databaseService.disconnect();
+  process.exit(0);
 });
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT received, shutting down gracefully...');
+  await databaseService.disconnect();
+  process.exit(0);
+});
+
+startServer();
 
 export default app;
