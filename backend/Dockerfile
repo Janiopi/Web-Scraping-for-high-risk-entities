@@ -1,9 +1,10 @@
 # Dockerfile specific for backend deployment on Render
 FROM node:18-slim
 
-# Install Chrome dependencies
+# Install Chrome dependencies and curl
 RUN apt-get update && apt-get install -y \
     wget \
+    curl \
     gnupg \
     ca-certificates \
     apt-transport-https \
@@ -36,13 +37,13 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add
 WORKDIR /app
 
 # Copy package files
-COPY backend/package*.json ./
+COPY package*.json ./
 
 # Install Node dependencies
 RUN npm ci --only=production
 
 # Copy backend source code
-COPY backend/ ./
+COPY . ./
 
 # Set environment variables
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
