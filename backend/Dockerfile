@@ -49,12 +49,16 @@ COPY . ./
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
-# Create non-root user
+# Create non-root user with proper home directory
 RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 nodejs
+    && adduser --system --uid 1001 --home /home/nodejs --shell /bin/bash nodejs \
+    && mkdir -p /home/nodejs/.local/share/applications \
+    && mkdir -p /home/nodejs/.config \
+    && mkdir -p /tmp/chrome-user-data
 
-# Change ownership
-RUN chown -R nodejs:nodejs /app
+# Change ownership of app and home directory
+RUN chown -R nodejs:nodejs /app /home/nodejs /tmp/chrome-user-data
+
 USER nodejs
 
 # Expose port
