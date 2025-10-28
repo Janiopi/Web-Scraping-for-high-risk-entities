@@ -5,7 +5,7 @@ class TheWorldBank {
   async search(entityName) {
     console.log(` Searching ${entityName} in The World Bank Debarred Firms`);
     try {
-      const config = getPuppeteerConfig();
+      const config = getPuppeteerConfig('worldbank');
       const browser = await puppeteer.launch(config);
       const page = await browser.newPage();
 

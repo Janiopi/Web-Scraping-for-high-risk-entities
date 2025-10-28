@@ -54,7 +54,8 @@ RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 --home /home/nodejs --shell /bin/bash nodejs \
     && mkdir -p /home/nodejs/.local/share/applications \
     && mkdir -p /home/nodejs/.config \
-    && mkdir -p /tmp/chrome-user-data
+    && mkdir -p /tmp/chrome-user-data \
+    && chmod 755 /tmp
 
 # Change ownership of app and home directory
 RUN chown -R nodejs:nodejs /app /home/nodejs /tmp/chrome-user-data

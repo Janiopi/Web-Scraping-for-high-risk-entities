@@ -5,9 +5,9 @@ class OffshoreLeaksScraper {
   async search(entityName) {
     console.log(` Searching ${entityName} in OffShore Leaks DataBase`);
     try {
-      // Get puppeteer config and add anti-detection measures
-      const config = getPuppeteerConfig();
-
+      // Get puppeteer config with unique name for OffshoreLeaks
+      const config = getPuppeteerConfig('offshoreleaks');
+      
       // Add anti-detection args for OffshoreLeaks
       if (process.env.NODE_ENV === 'production') {
         config.args.push(
@@ -19,10 +19,8 @@ class OffshoreLeaksScraper {
       } else {
         config.slowMo = 500; // Slower in development for human-like behavior
       }
-
-      const browser = await puppeteer.launch(config); //In case of offShoreLeaks, it detects bots
-
-      const page = await browser.newPage();
+      
+      const browser = await puppeteer.launch(config); //In case of offShoreLeaks, it detects bots      const page = await browser.newPage();
 
       // Anti-detection measures
       await page.evaluateOnNewDocument(() => {

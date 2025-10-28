@@ -1,8 +1,11 @@
 // Puppeteer configuration for production deployment
-export const getPuppeteerConfig = () => {
+export const getPuppeteerConfig = (scraperName = 'default') => {
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (isProduction) {
+    // Create unique user data directory for each scraper
+    const userDataDir = `/tmp/chrome-user-data-${scraperName}-${Date.now()}`;
+
     return {
       headless: 'new', // Use new headless mode
       args: [
@@ -19,7 +22,7 @@ export const getPuppeteerConfig = () => {
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
         '--disable-renderer-backgrounding',
-        '--user-data-dir=/tmp/chrome-user-data',
+        `--user-data-dir=${userDataDir}`,
         '--disable-extensions',
         '--disable-plugins',
         '--disable-default-apps',

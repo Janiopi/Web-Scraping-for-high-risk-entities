@@ -5,7 +5,7 @@ class Ofac {
   async search(entityName) {
     console.log(` Searching ${entityName} in Ofac sanctions list`);
     try {
-      const config = getPuppeteerConfig();
+      const config = getPuppeteerConfig('ofac');
       const browser = await puppeteer.launch(config);
       const page = await browser.newPage();
 
