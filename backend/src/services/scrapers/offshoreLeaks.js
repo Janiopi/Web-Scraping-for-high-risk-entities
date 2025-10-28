@@ -1,30 +1,26 @@
 import puppeteer from 'puppeteer';
+import { getPuppeteerConfig } from '../../config/puppeteerConfig.js';
 
 class OffshoreLeaksScraper {
   async search(entityName) {
     console.log(` Searching ${entityName} in OffShore Leaks DataBase`);
     try {
-      // Puppeteer will simulate a client visiting the site
-      const browser = await puppeteer.launch({
-        headless: true, // Always headless to avoid detection
-        slowMo: 500, // Slower to appear more human-like
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu',
-          // Anti-detection arguments
+      // Get puppeteer config and add anti-detection measures
+      const config = getPuppeteerConfig();
+
+      // Add anti-detection args for OffshoreLeaks
+      if (process.env.NODE_ENV === 'production') {
+        config.args.push(
           '--disable-blink-features=AutomationControlled',
           '--exclude-switches=enable-automation',
-          '--disable-extensions-except=/path/to/extension',
           '--disable-plugins-discovery',
-          '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        ],
-      }); //In case of offShoreLeaks, it detects bots
+          '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        );
+      } else {
+        config.slowMo = 500; // Slower in development for human-like behavior
+      }
+
+      const browser = await puppeteer.launch(config); //In case of offShoreLeaks, it detects bots
 
       const page = await browser.newPage();
 

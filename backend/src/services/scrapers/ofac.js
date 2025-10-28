@@ -1,23 +1,12 @@
 import puppeteer from 'puppeteer';
+import { getPuppeteerConfig } from '../../config/puppeteerConfig.js';
 
 class Ofac {
   async search(entityName) {
     console.log(` Searching ${entityName} in Ofac sanctions list`);
     try {
-      const browser = await puppeteer.launch({
-        headless: true, // process.env.NODE_ENV === 'production',
-        slowMo: 400,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu',
-        ],
-      }); // Puppeteer will simulate a client visiting the site
+      const config = getPuppeteerConfig();
+      const browser = await puppeteer.launch(config);
       const page = await browser.newPage();
 
       //Navigate to the page and search

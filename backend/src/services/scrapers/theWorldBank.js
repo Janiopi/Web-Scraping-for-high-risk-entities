@@ -1,32 +1,21 @@
 import puppeteer from 'puppeteer';
+import { getPuppeteerConfig } from '../../config/puppeteerConfig.js';
 
 class TheWorldBank {
   async search(entityName) {
-    console.log(` Searching ${entityName} in The World Bank`);
+    console.log(` Searching ${entityName} in The World Bank Debarred Firms`);
     try {
-      const browser = await puppeteer.launch({
-        headless: true, //process.env.NODE_ENV === 'production',
-        slowMo: 400,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu',
-        ],
-      }); // Puppeteer will simulate a client visiting the site
+      const config = getPuppeteerConfig();
+      const browser = await puppeteer.launch(config);
       const page = await browser.newPage();
 
       //Navigate to the page and search
       await page.goto(
-        'https://projects.worldbank.org/en/projects-operations/procurement/debarred-firms'
+        'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms'
       );
 
       // Now wait for the main search page to load
-      await page.waitForSelector('#category', { timeout: 10000 }); // Id category
+      await page.waitForSelector('#category', { timeout: 10000 });
 
       // Type the search term
       await page.type('#category', entityName);
@@ -56,7 +45,7 @@ class TheWorldBank {
               country: cells[3]?.textContent?.trim() || '',
               fromDate: cells[4]?.textContent?.trim() || '',
               toDate: cells[5]?.textContent?.trim() || '',
-              grounds: cells[6]?.textContent?.trim() || '',
+              grounds: cells[6]?.textContent?.textContent?.trim() || '',
             };
           });
         }
@@ -70,8 +59,8 @@ class TheWorldBank {
         results,
       };
     } catch (error) {
-      console.log(`Error searching in Offshore Leaks: ${error.message}`);
-      throw new Error(`Error al buscar en Offshore Leaks: ${error.message}`);
+      console.log(`Error searching in The World Bank: ${error.message}`);
+      throw new Error(`Error al buscar en The World Bank: ${error.message}`);
     }
   }
 }
