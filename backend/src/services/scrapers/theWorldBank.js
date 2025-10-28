@@ -75,5 +75,7 @@ class TheWorldBank {
 
 export { TheWorldBank };
 
+/*
 const scraper = new TheWorldBank();
 scraper.search('Bank');
+*/
