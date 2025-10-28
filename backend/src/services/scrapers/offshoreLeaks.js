@@ -66,7 +66,7 @@ class OffshoreLeaksScraper {
       //Navigate to the page and search with more realistic options
       await page.goto('https://offshoreleaks.icij.org', {
         waitUntil: 'domcontentloaded',
-        timeout: 20000,
+        timeout: 40000,
       });
 
       // Random delay to appear more human-like

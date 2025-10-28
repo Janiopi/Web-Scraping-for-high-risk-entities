@@ -14,7 +14,7 @@ class TheWorldBank {
         'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms',
         {
           waitUntil: 'domcontentloaded',
-          timeout: 15000,
+          timeout: 30000,
         }
       );
 
