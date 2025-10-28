@@ -4,7 +4,7 @@ export const getPuppeteerConfig = () => {
 
   if (isProduction) {
     return {
-      headless: true,
+      headless: 'new', // Use new headless mode
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -16,9 +16,14 @@ export const getPuppeteerConfig = () => {
         '--disable-gpu',
         '--disable-web-security',
         '--disable-features=VizDisplayCompositor',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
       ],
-      // Let Puppeteer find the downloaded Chrome
-      executablePath: undefined,
+      // Try different Chrome paths for Render
+      executablePath:
+        process.env.PUPPETEER_EXECUTABLE_PATH ||
+        '/usr/bin/google-chrome-stable',
     };
   }
 

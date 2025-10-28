@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "build": "npx puppeteer browsers install chrome",
-    "postinstall": "npx puppeteer browsers install chrome",
+    "build": "echo 'Build completed - Chrome will be available in container'",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:start": "NODE_ENV=testing nodemon --env-file=.env.testing src/app.js"
   },
