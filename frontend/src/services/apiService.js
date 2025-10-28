@@ -3,7 +3,8 @@ import authService from './authService.js';
 
 class ApiService {
   constructor() {
-    this.baseURL = 'http://localhost:3000/api'; // Backend endpoint
+    this.baseURL =
+      'https://web-scraping-for-high-risk-entities-lwp7.onrender.com/api'; // Backend endpoint
     this.api = axios.create({
       baseURL: this.baseURL,
       timeout: 120000, // 2 minutes timeout for scraping operations
@@ -71,9 +72,12 @@ class ApiService {
   async checkHealth() {
     try {
       // Use axios directly for health check
-      const response = await axios.get('http://localhost:3000/health', {
-        timeout: 5000,
-      });
+      const response = await axios.get(
+        'https://web-scraping-for-high-risk-entities-lwp7.onrender.com/health',
+        {
+          timeout: 5000,
+        }
+      );
       console.log('Health check response:', response.data);
       return response.data;
     } catch (error) {

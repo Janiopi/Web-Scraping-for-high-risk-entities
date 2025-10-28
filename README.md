@@ -2,15 +2,26 @@
 
 A comprehensive web application for searching and analyzing high-risk entities across multiple financial databases including Offshore Leaks, OFAC Sanctions List, and World Bank Debarment database. Built with a js tech stack featuring JWT authentication, MongoDB integration, and a responsive web interface.
 
+## Index
+
+- [Key Features](#key-features)
+- [Project structure](#project-structure)
+- [ Stack ](#technology-stack)
+- [ Architecture ](#architecture-overview)
+- [ Auth System](#authentication-system)
+- [Database](#database-design)
+- [ API endpoints ](#api-documentation)
+- [ Deployment ](#deployment)
+
 ## Key Features
 
 - **Multi-Source Scraping**: Search across Offshore Leaks, OFAC, and World Bank databases simultaneously
-- **JWT Authentication**: Secure user authentication with token blacklisting for secure logout
-- **Real-time Search**: Interactive search interface with collapsible results by source
-- **Data Export**: Download search results in JSON format with metadata
-- **Responsive Design**: Modern UI built with Tailwind CSS and Font Awesome icons
 - **MVC Architecture**: Clean separation of concerns following Model-View-Controller pattern
 - **MongoDB Integration**: Persistent user management and audit trails
+- **JWT Authentication**: Secure user authentication with token blacklisting for secure logout
+- **Real-time Search**: Interactive search interface with collapsible results by source
+- **Data Export**: Download search results in JSON format with metadata (From frontend)
+- **Responsive Design**: Modern UI built with Tailwind CSS and Font Awesome icons
 
 ## Project Structure
 
@@ -90,6 +101,8 @@ Web-Scraping-for-high-risk-entities/
 
 ## Architecture Overview
 
+![architecture](screenshots/diagram-export-10-28-2025-5_09_40-PM.png)
+
 ### MVC Pattern Implementation
 
 The backend follows a strict Model-View-Controller (MVC) architecture:
@@ -127,7 +140,7 @@ The backend follows a strict Model-View-Controller (MVC) architecture:
 - **searchService.js**: Search coordination
 - **Scrapers**: Individual scraping modules for each data source
 
-### Authentication System
+## Authentication System
 
 #### JWT Implementation
 
@@ -143,7 +156,7 @@ The backend follows a strict Model-View-Controller (MVC) architecture:
 - **Input Validation**: express-validator for request sanitization
 - **CORS Configuration**: Controlled cross-origin access
 
-### Database Design
+## Database Design
 
 #### MongoDB Collections
 
@@ -164,6 +177,7 @@ The backend follows a strict Model-View-Controller (MVC) architecture:
 
    - Source: [ICIJ (International Consortium of Investigative Journalists)](https://sanctionssearch.ofac.treas.gov/)
    - Data: Offshore entities, shell companies, tax havens
+   - Not working on production :(
 
 2. **OFAC Sanctions List**
 
@@ -177,9 +191,55 @@ The backend follows a strict Model-View-Controller (MVC) architecture:
 ### Scraper Architecture
 
 - **Puppeteer Integration**: Headless browser automation
-- **Concurrent Execution**: Parallel searches across all sources
+- **Concurrent Execution**: Searches across all sources
 - **Error Handling**: Graceful degradation when sources are unavailable
 - **Result Standardization**: Unified data format across all sources
+
+## API Documentation
+
+### Authentication Endpoints
+
+```
+POST /auth/register    # User registration
+POST /auth/login       # User authentication
+POST /auth/logout      # Secure logout with token blacklisting
+GET  /auth/profile     # Get user profile (protected)
+GET  /auth/verify      # Verify token validity
+GET  /auth/stats       # Admin statistics (admin only)
+```
+
+### Search Endpoints
+
+```
+GET  /api/health                                # Service health check
+POST /api/search?entityName={'Source',...}       # Multi-source entity search (protected)
+GET /api/sources                                # Get all available sources
+```
+
+## Postman collection
+
+In this collection we are testing all endpoints of the API (be sure that the Render service is active)
+
+[Link to postman collection](https://janio-zapata-i-9718111.postman.co/workspace/JANIO-ADOLFO-ZAPATA-INGA's-Work~fbad851b-ad7f-4069-884d-4e10c07faced/collection/49559486-3bc0bcb9-f560-4bf6-b764-0c0efc3bb7de?action=share&creator=49559486&active-environment=49559486-8e130579-ee57-4178-9ecd-f25cb387538f)
+
+### Request/Response Examples
+
+### Register request
+
+![alt text](screenshots/image.png)
+![alt text](screenshots/image-1.png)
+
+### Register response
+
+![alt text](screenshots/image-2.png)
+
+#### Search Request
+
+![alt text](screenshots/image-3.png)
+
+#### Search Response
+
+![alt text](screenshots/image-4.png)
 
 ## Frontend Features
 
@@ -202,7 +262,17 @@ The backend follows a strict Model-View-Controller (MVC) architecture:
 - **Service Layer**: Centralized API communication
 - **State Management**: Local component state with service coordination
 
-## Deployment
+# Deployment
+
+## Production Deployment
+
+There are two services deployed
+
+- [Backend](https://web-scraping-for-high-risk-entities-lwp7.onrender.com/health): Deployed on Render. Since its a free service, sometimes due inactivity enter in "sleep" mode.
+
+- Database: This is delpoyed on MongoDB Atlas. This is the connection string (Due obvious reasons there is no user/password):
+
+`   mongodb+srv://<db_user>:<db_password>@cluster0.b5tat5p.mongodb.net/?appName=Cluster0`
 
 ## Local Development Setup
 
@@ -351,81 +421,3 @@ environment:
   JWT_SECRET: your-secure-jwt-secret-here
   MONGO_URI: mongodb://username:password@mongodb:27017/web-scraping-auth
 ```
-
-### Production Considerations
-
-1. **Environment Variables**: Update JWT secrets and MongoDB URIs
-2. **Database Security**: Enable MongoDB authentication
-3. **HTTPS**: Implement SSL/TLS certificates
-4. **Process Management**: Use PM2 or similar for production
-5. **Monitoring**: Implement logging and error tracking
-
-## API Documentation
-
-### Authentication Endpoints
-
-```
-POST /auth/register    # User registration
-POST /auth/login       # User authentication
-POST /auth/logout      # Secure logout with token blacklisting
-GET  /auth/profile     # Get user profile (protected)
-GET  /auth/verify      # Verify token validity
-GET  /auth/stats       # Admin statistics (admin only)
-```
-
-### Search Endpoints
-
-```
-GET  /api/health       # Service health check
-POST /api/search       # Multi-source entity search (protected)
-```
-
-## Postman collection
-
-Testing enpoints in development
-
-[Link to postman collection](https://janio-zapata-i-9718111.postman.co/workspace/JANIO-ADOLFO-ZAPATA-INGA's-Work~fbad851b-ad7f-4069-884d-4e10c07faced/collection/49559486-3bc0bcb9-f560-4bf6-b764-0c0efc3bb7de?action=share&creator=49559486&active-environment=49559486-8e130579-ee57-4178-9ecd-f25cb387538f)
-
-### Request/Response Examples
-
-#### Login Request
-
-```json
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
-
-#### Search Request
-
-```json
-{
-  "entityName": "John Doe"
-}
-```
-
-#### Search Response
-
-```json
-{
-  "results": [
-    {
-      "source": "OffshoreLeaksScraper",
-      "status": "success",
-      "data": {
-        "results": [...]
-      }
-    }
-  ]
-}
-```
-
-## Security Features
-
-- **JWT Authentication**: Stateless authentication with secure tokens
-- **Password Hashing**: bcryptjs with configurable salt rounds
-- **Token Blacklisting**: Secure logout prevents token reuse
-- **Input Validation**: Comprehensive request validation
-- **CORS Protection**: Controlled cross-origin access
-- **Environment Separation**: Separate development/production configs
