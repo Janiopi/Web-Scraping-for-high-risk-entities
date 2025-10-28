@@ -10,16 +10,20 @@ class TheWorldBank {
       const page = await browser.newPage();
 
       //Navigate to the page and search
+      console.log('WorldBank: Navigating to website...');
       await page.goto(
         'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms',
         {
           waitUntil: 'domcontentloaded',
-          timeout: 30000,
+          timeout: 15000,
         }
       );
+      console.log('WorldBank: Page loaded successfully');
 
       // Now wait for the main search page to load
+      console.log('WorldBank: Waiting for #category selector...');
       await page.waitForSelector('#category', { timeout: 10000 });
+      console.log('WorldBank: #category selector found');
 
       // Type the search term
       await page.type('#category', entityName);
@@ -56,7 +60,7 @@ class TheWorldBank {
       );
 
       await browser.close();
-
+      console.log(count);
       return {
         source: 'The World Bank',
         count,
@@ -70,3 +74,6 @@ class TheWorldBank {
 }
 
 export { TheWorldBank };
+
+const scraper = new TheWorldBank();
+scraper.search('Bank');
