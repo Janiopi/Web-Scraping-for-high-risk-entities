@@ -12,6 +12,20 @@ export const validateSearch = [
     .isLength({ min: 2, max: 100 })
     .withMessage('Entity name must be between 2 and 100 characters')
     .escape(), // Sanitize to prevent XSS
+  query('sources')
+    .optional()
+    .isArray()
+    .withMessage('Sources must be an array')
+    .custom((sources) => {
+      const availableSources = ['OffshoreLeaksScraper', 'Ofac', 'TheWorldBank'];
+      const invalidSources = sources.filter(
+        (source) => !availableSources.includes(source)
+      );
+      if (invalidSources.length > 0) {
+        throw new Error(`Invalid sources: ${invalidSources.join(', ')}`);
+      }
+      return true;
+    }),
 ];
 
 export const search = async (req, res) => {
@@ -21,7 +35,7 @@ export const search = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { entityName } = req.query;
+    const { entityName, sources } = req.query;
 
     if (!entityName || entityName.trim() === '') {
       return res.status(400).json({
@@ -30,8 +44,14 @@ export const search = async (req, res) => {
       });
     }
 
-    // Search in the three sources
-    const result = await searchService.search(entityName);
+    // Parse sources if provided (query params come as strings)
+    let selectedSources = null;
+    if (sources) {
+      selectedSources = Array.isArray(sources) ? sources : [sources];
+    }
+
+    // Search with selected sources (or all if none specified)
+    const result = await searchService.search(entityName, selectedSources);
 
     return res.status(200).json({
       success: true,
@@ -53,6 +73,28 @@ export const search = async (req, res) => {
       success: false,
       error: 'Internal Server Error',
       message: 'An error occurred while processing the search',
+      details:
+        process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+// Get available sources endpoint
+export const getSources = async (req, res) => {
+  try {
+    const sources = searchService.getAvailableSources();
+
+    return res.status(200).json({
+      success: true,
+      data: sources,
+      message: 'Available sources retrieved successfully',
+    });
+  } catch (error) {
+    console.error('Get sources error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal Server Error',
+      message: 'An error occurred while retrieving sources',
       details:
         process.env.NODE_ENV === 'development' ? error.message : undefined,
     });

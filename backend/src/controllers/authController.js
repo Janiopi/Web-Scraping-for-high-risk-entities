@@ -42,6 +42,16 @@ export const login = async (req, res) => {
 
     // Generating JWT
     const jwtSecret = process.env.JWT_SECRET || 'your-default-secret-key';
+    
+    // Token options - check if testing/development mode for non-expiring tokens
+    const tokenOptions = {};
+    const expiresIn = process.env.JWT_EXPIRES_IN || '24h';
+    
+    // Only add expiration if not explicitly disabled for testing
+    if (expiresIn !== 'never' && process.env.NODE_ENV !== 'testing') {
+      tokenOptions.expiresIn = expiresIn;
+    }
+    
     const token = jwt.sign(
       {
         id: user._id,
@@ -50,9 +60,7 @@ export const login = async (req, res) => {
         role: user.role,
       },
       jwtSecret,
-      {
-        expiresIn: process.env.JWT_EXPIRES_IN || '24h',
-      }
+      tokenOptions
     );
 
     const userProfile = await databaseService.getUserProfile(user._id);
@@ -112,6 +120,16 @@ export const register = async (req, res) => {
 
     // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET || 'your-default-secret-key';
+    
+    // Token options - check if testing/development mode for non-expiring tokens
+    const tokenOptions = {};
+    const expiresIn = process.env.JWT_EXPIRES_IN || '24h';
+    
+    // Only add expiration if not explicitly disabled for testing
+    if (expiresIn !== 'never' && process.env.NODE_ENV !== 'testing') {
+      tokenOptions.expiresIn = expiresIn;
+    }
+    
     const token = jwt.sign(
       {
         id: newUser._id,
@@ -120,9 +138,7 @@ export const register = async (req, res) => {
         role: newUser.role,
       },
       jwtSecret,
-      {
-        expiresIn: process.env.JWT_EXPIRES_IN || '24h',
-      }
+      tokenOptions
     );
 
     // Get public profile

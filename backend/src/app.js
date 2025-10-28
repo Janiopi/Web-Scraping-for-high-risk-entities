@@ -7,10 +7,14 @@ import databaseService from './services/databaseService.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS Configuration - More permissive
+// CORS Configuration - Dynamic based on environment
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 app.use(
   cors({
-    origin: true, // Allow all origins
+    origin: process.env.NODE_ENV === 'production' ? allowedOrigins : true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',
@@ -68,18 +72,17 @@ async function startServer() {
     await databaseService.connect();
 
     // Init server
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-      console.log(`Health check: http://localhost:${PORT}/health`);
-      console.log(
-        ` Search endpoint: http://localhost:${PORT}/api/search?entityName=test`
-      );
-      console.log(`Auth endpoints: http://localhost:${PORT}/auth/login`);
-      console.log(
-        `Database: ${
-          databaseService.isHealthy() ? 'Connected' : 'Disconnected'
-        }`
-      );
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`Health check: /health`);
+      console.log(`Database: ${databaseService.isHealthy() ? 'Connected' : 'Disconnected'}`);
+      
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`Local URL: http://localhost:${PORT}`);
+        console.log(`Search endpoint: http://localhost:${PORT}/api/search?entityName=test`);
+        console.log(`Auth endpoints: http://localhost:${PORT}/auth/login`);
+      }
     });
   } catch (error) {
     console.error('Failed to start server:', error);

@@ -5,11 +5,79 @@ class OffshoreLeaksScraper {
     console.log(` Searching ${entityName} in OffShore Leaks DataBase`);
     try {
       // Puppeteer will simulate a client visiting the site
-      const browser = await puppeteer.launch({ headless: false, slowMo: 300 }); //In case of offShoreLeaks, it detects bots
+      const browser = await puppeteer.launch({
+        headless: true, // Always headless to avoid detection
+        slowMo: 500, // Slower to appear more human-like
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--disable-gpu',
+          // Anti-detection arguments
+          '--disable-blink-features=AutomationControlled',
+          '--exclude-switches=enable-automation',
+          '--disable-extensions-except=/path/to/extension',
+          '--disable-plugins-discovery',
+          '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        ],
+      }); //In case of offShoreLeaks, it detects bots
+
       const page = await browser.newPage();
 
-      //Navigate to the page and search
-      await page.goto('https://offshoreleaks.icij.org');
+      // Anti-detection measures
+      await page.evaluateOnNewDocument(() => {
+        // Remove webdriver property
+        Object.defineProperty(navigator, 'webdriver', {
+          get: () => undefined,
+        });
+
+        // Mock plugins and languages
+        Object.defineProperty(navigator, 'plugins', {
+          get: () => [1, 2, 3, 4, 5],
+        });
+
+        Object.defineProperty(navigator, 'languages', {
+          get: () => ['en-US', 'en'],
+        });
+
+        // Override the `plugins` property to use a custom getter.
+        Object.defineProperty(navigator, 'plugins', {
+          get: function () {
+            return [1, 2, 3, 4, 5];
+          },
+        });
+      });
+
+      // Set a more realistic viewport
+      await page.setViewport({ width: 1366, height: 768 });
+
+      // Set additional headers to look more like a real browser
+      await page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-User': '?1',
+        'Sec-Fetch-Dest': 'document',
+      });
+
+      //Navigate to the page and search with more realistic options
+      await page.goto('https://offshoreleaks.icij.org', {
+        waitUntil: 'networkidle2',
+        timeout: 30000,
+      });
+
+      // Random delay to appear more human-like
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1000 + Math.random() * 2000)
+      );
 
       // Accept terms and conditions
       // Wait for the modal to appear
@@ -26,8 +94,8 @@ class OffshoreLeaksScraper {
       // Now wait for the main search page to load
       await page.waitForSelector('input[name="q"]', { timeout: 10000 });
 
-      // Type the search term
-      await page.type('input[name="q"]', entityName);
+      // Type the search term slowly to simulate human typing
+      await page.type('input[name="q"]', entityName, { delay: 100 });
 
       // Wait for the search button to be enabled after typing
       await page.waitForSelector('button[type="submit"]:not([disabled])', {
