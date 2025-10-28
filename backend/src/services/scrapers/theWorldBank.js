@@ -15,7 +15,7 @@ class TheWorldBank {
       );
 
       // Now wait for the main search page to load
-      await page.waitForSelector('#category', { timeout: 10000 });
+      await page.waitForSelector('#category', { timeout: 20000 });
 
       // Type the search term
       await page.type('#category', entityName);
@@ -45,7 +45,7 @@ class TheWorldBank {
               country: cells[3]?.textContent?.trim() || '',
               fromDate: cells[4]?.textContent?.trim() || '',
               toDate: cells[5]?.textContent?.trim() || '',
-              grounds: cells[6]?.textContent?.textContent?.trim() || '',
+              grounds: cells[6]?.textContent?.trim() || '',
             };
           });
         }
