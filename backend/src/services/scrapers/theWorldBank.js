@@ -11,18 +11,22 @@ class TheWorldBank {
 
       //Navigate to the page and search
       await page.goto(
-        'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms'
+        'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms',
+        {
+          waitUntil: 'domcontentloaded',
+          timeout: 15000,
+        }
       );
 
       // Now wait for the main search page to load
-      await page.waitForSelector('#category', { timeout: 20000 });
+      await page.waitForSelector('#category', { timeout: 10000 });
 
       // Type the search term
       await page.type('#category', entityName);
 
       // Wait for the k-debarred-firms table to load
       await page.waitForSelector('#k-debarred-firms tbody tr', {
-        timeout: 40000,
+        timeout: 20000,
       });
 
       // Numbers of rows from k-debarred-firms table

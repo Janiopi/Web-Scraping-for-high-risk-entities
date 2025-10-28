@@ -14,11 +14,11 @@ export const validateSearch = [
     .escape(), // Sanitize to prevent XSS
   query('sources')
     .optional()
-    .isArray()
-    .withMessage('Sources must be an array')
     .custom((sources) => {
       const availableSources = ['OffshoreLeaksScraper', 'Ofac', 'TheWorldBank'];
-      const invalidSources = sources.filter(
+      // Convert to array if it's a string (for single source)
+      const sourcesArray = Array.isArray(sources) ? sources : [sources];
+      const invalidSources = sourcesArray.filter(
         (source) => !availableSources.includes(source)
       );
       if (invalidSources.length > 0) {
@@ -47,7 +47,14 @@ export const search = async (req, res) => {
     // Parse sources if provided (query params come as strings)
     let selectedSources = null;
     if (sources) {
-      selectedSources = Array.isArray(sources) ? sources : [sources];
+      if (Array.isArray(sources)) {
+        selectedSources = sources;
+      } else if (typeof sources === 'string') {
+        // Support comma-separated sources: "Ofac,TheWorldBank"
+        selectedSources = sources.split(',').map((s) => s.trim());
+      } else {
+        selectedSources = [sources];
+      }
     }
 
     // Search with selected sources (or all if none specified)
