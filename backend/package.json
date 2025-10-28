@@ -6,7 +6,13 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "echo 'No build process needed for Node.js'",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:start": "NODE_ENV=testing nodemon --env-file=.env.testing src/app.js"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "keywords": [],
   "author": "",
